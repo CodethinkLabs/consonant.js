@@ -19,6 +19,8 @@
 
 /**
  * Various helper utilities for working with URLs and more.
+ *
+ * @constructor
  */
 var Helpers = function () {
 };
@@ -108,9 +110,33 @@ Service.prototype = function () {
         });
     };
 
+    /**
+     * Callback that takes a {Commit}.
+     *
+     * @callback commitCallback
+     * @param {Commit} A {Commit} object.
+     */
+
+    /**
+     * Fetches a {Commit} from the service and returns it via a callback.
+     *
+     * @method Service.prototype.commit
+     * @param {string} sha1 - SHA1 of the {Commit} to fetch.
+     * @param {commitCallback} callback - Callback to which the {Commit} is
+     *                                    passed on.
+     */
+    var commit = function (sha1, callback) {
+        var url = Helpers.urljoin(this.url, 'commits', sha1);
+        $.getJSON(url, function (data) {
+            var commit = Commit.parseJSON(data);
+            callback(commit);
+        });
+    };
+
     return {
-        refs: refs,
+        commit: commit,
         ref: ref,
+        refs: refs,
     };
 }();
 

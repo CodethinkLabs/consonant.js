@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.js"></script>
+    <script type="text/javascript" src="../consonant.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        // extract the service URL from the document URL
+        var url = window.location.search.replace(/^\?url=/, '');
+        if (!url) {
+          url = 'http://localhost:8989';
+        }
+
+        // connect to the service
+        var service = new Service(url);
+
+        // display the service URL
+        $('#url').text(service.url);
+
+        service.ref('master', function (ref) {
+          service.commit(ref.head.sha1, function (commit) {
+            // render commit by accessing its properties
+            $('#objects').append('<li><table>'
+                     + '  <tr>'
+                     + '    <td>sha1</td>'
+                     + '    <td>' + commit.sha1 + '</td>'
+                     + '  </tr>'
+                     + '  <tr>'
+                     + '    <td>author</td>'
+                     + '    <td>' + commit.author.replace('<', '&lt;') + '</td>'
+                     + '  </tr>'
+                     + '  <tr>'
+                     + '    <td>author_date</td>'
+                     + '    <td>' + commit.author_date + '</td>'
+                     + '  </tr>'
+                     + '  <tr>'
+                     + '    <td>committer</td>'
+                     + '    <td>' + commit.committer.replace('<', '&lt;') + '</td>'
+                     + '  </tr>'
+                     + '  <tr>'
+                     + '    <td>committer_date</td>'
+                     + '    <td>' + commit.committer_date + '</td>'
+                     + '  </tr>'
+                     + '  <tr>'
+                     + '    <td>parents</td>'
+                     + '    <td>' + commit.parents.join(', ') + '</td>'
+                     + '  </tr>'
+                     + '  <tr>'
+                     + '    <td>subject</td>'
+                     + '    <td>' + commit.subject + '</td>'
+                     + '  </tr>'
+                     + '</table></li>');
+
+            // serialise commit to JSON
+            $('body').append('<pre>' + commit.json() + '</pre>');
+          });
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Latest commit in branch "master"</h1>
+    <p class="service">Consonant service at <tt id="url"></tt></p>
+    <p class="note">Append <tt>?url=&langle;URL&rangle;</tt> to use the Consonant service at <tt>&langle;URL&rangle;</tt> instead of <tt>http://localhost:8989</tt>.</p>
+    <h2>Object</h2>
+    <ul id="objects">
+    </ul>
+    <h2>JSON</h2>
+    <ul id="json">
+    </ul>
+  </body>
+</html>
