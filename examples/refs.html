@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.js"></script>
+    <script type="text/javascript" src="../consonant.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        // extract the service URL from the document URL
+        var url = window.location.search.replace(/^\?url=/, '');
+        if (!url) {
+          url = 'http://localhost:8989';
+        }
+
+        // connect to the service
+        var service = new Service(url);
+
+        // display the service URL
+        $('#url').text(service.url);
+
+        // render refs by accessing their properties
+        service.refs(function (refs) {
+          for (name in refs) {
+            var ref = refs[name];
+
+            $('#objects').append('<li><table>'
+                     + '  <tr>'
+                     + '    <td>url_aliases</td>'
+                     + '    <td>' + ref.url_aliases.join(', ') + '</td>'
+                     + '  </tr>'
+                     + '  <tr>'
+                     + '    <td>type</td>'
+                     + '    <td>' + ref.type + '</td>'
+                     + '  </tr>'
+                     + '  <tr>'
+                     + '    <td>head</td>'
+                     + '    <td><pre>' + ref.head.json() + '</pre></td>'
+                     + '  </tr>'
+                     + '</table></li>');
+          }
+        });
+
+        // serialise refs to JSON
+        service.refs(function (refs) {
+          for (name in refs) {
+            $('body').append('<h3>' + name + '</h3>');
+            $('body').append('<pre>' + refs[name].json() + '</pre>');
+          }
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Refs in Consonant service at <tt id="url"></tt></h1>
+    <p class="note">Append <tt>?url=&langle;URL&rangle;</tt> to use the Consonant service at <tt>&langle;URL&rangle;</tt> instead of <tt>http://localhost:8989</tt>.</p>
+    <h2>Objects</h2>
+    <ul id="objects">
+    </ul>
+    <h2>JSON</h2>
+    <ul id="json">
+    </ul>
+  </body>
+</html>

@@ -1,0 +1,36 @@
+h1 {
+    background: #abf79b;
+    margin: 0em;
+}
+
+h2 {
+    border-bottom: thin solid #ccc;
+}
+
+p.note {
+    font-style: italic;
+}
+
+ul {
+    padding-left: 0em;
+}
+
+li {
+    list-style: none;
+    margin-bottom: 1em;
+}
+
+table {
+    border: thin solid #ccc;
+}
+
+th, td {
+    padding: 0.25em;
+    vertical-align: top;
+}
+
+pre {
+    background: #efefef;
+    margin-top: 0em;
+    padding: 0.25em;
+}
