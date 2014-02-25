@@ -86,8 +86,31 @@ Service.prototype = function () {
         });
     };
 
+    /**
+     * Callback that takes a {Ref}.
+     *
+     * @callback refCallback
+     * @param {Ref} A {Ref} object.
+     */
+
+    /**
+     * Fetches a specific {Ref} from the service and returns it via a callback.
+     *
+     * @method Service.prototype.ref
+     * @param {string} name - Name of the {Ref} to fetch.
+     * @param {refCallback} callback - Callback to which the {Ref} is passed on.
+     */
+    var ref = function (name, callback) {
+        var url = Helpers.urljoin(this.url, 'refs', name);
+        $.getJSON(url, function (data) {
+            var ref = Ref.parseJSON(data);
+            callback(ref);
+        });
+    };
+
     return {
         refs: refs,
+        ref: ref,
     };
 }();
 
