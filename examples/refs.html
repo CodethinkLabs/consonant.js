@@ -18,11 +18,11 @@
         // display the service URL
         $('#url').text(service.url);
 
-        // render refs by accessing their properties
         service.refs(function (refs) {
           for (name in refs) {
             var ref = refs[name];
 
+            // render ref by accessing its properties
             $('#objects').append('<li><table>'
                      + '  <tr>'
                      + '    <td>url_aliases</td>'
@@ -37,12 +37,7 @@
                      + '    <td><pre>' + ref.head.json() + '</pre></td>'
                      + '  </tr>'
                      + '</table></li>');
-          }
-        });
 
-        // serialise refs to JSON
-        service.refs(function (refs) {
-          for (name in refs) {
             $('body').append('<h3>' + name + '</h3>');
             $('body').append('<pre>' + refs[name].json() + '</pre>');
           }

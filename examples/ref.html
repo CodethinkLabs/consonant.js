@@ -18,8 +18,8 @@
         // display the service URL
         $('#url').text(service.url);
 
-        // render refs by accessing their properties
         service.ref('master', function (ref) {
+          // render ref by accessing its properties
           $('#objects').append('<li><table>'
                    + '  <tr>'
                    + '    <td>url_aliases</td>'
@@ -34,10 +34,8 @@
                    + '    <td><pre>' + ref.head.json() + '</pre></td>'
                    + '  </tr>'
                    + '</table></li>');
-        });
 
-        // serialise refs to JSON
-        service.ref('master', function (ref) {
+          // serialise ref to JSON
           $('body').append('<pre>' + ref.json() + '</pre>');
         });
       });
