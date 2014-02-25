@@ -17,6 +17,17 @@ Usage
 TODO
 
 
+API documentation
+-----------------
+
+The consonant.js reference manual can be built by running
+
+    jsdoc -d doc .
+
+from the source tree. This requires [jsdoc](http://usejsdoc.org) to
+be installed.
+
+
 Contributing
 ------------
 
