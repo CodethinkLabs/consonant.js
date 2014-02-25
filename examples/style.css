@@ -7,6 +7,10 @@ h2 {
     border-bottom: thin solid #ccc;
 }
 
+p.service {
+    background: #ffcc00;
+}
+
 p.note {
     font-style: italic;
 }
