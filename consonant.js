@@ -133,10 +133,58 @@ Service.prototype = function () {
         });
     };
 
+    /**
+     * Callback that takes a {string}.
+     *
+     * @callback stringCallback
+     * @param {string} A string (e.g. the service name).
+     */
+
+    /**
+     * Fetches the service name from a given {Commit} and returns it via
+     * a callback.
+     *
+     * @method Service.prototype.name
+     * @param {Commit} commit - {Commit} to fetch the service name from.
+     * @param {stringCallback} callback - Callback to which the name is
+     *                                    passed on.
+     */
+    var name = function (commit, callback) {
+        var url = Helpers.urljoin(this.url, 'commits', commit.sha1, 'name');
+        $.getJSON(url, function (data) {
+            callback(data);
+        });
+    };
+
+    /**
+     * Callback that takes an array.
+     *
+     * @callback arrayCallback
+     * @param {array} An array.
+     */
+
+    /**
+     * Fetches the service aliases from a given {Commit} and returns them
+     * via a callback.
+     *
+     * @method Service.prototype.services
+     * @param {Commit} commit - {Commit} to fetch the service aliases from.
+     * @param {arrayCallback} callback - Callback to which the service aliases
+     *                                   are passed on.
+     */
+    var services = function (commit, callback) {
+        var url = Helpers.urljoin(this.url, 'commits', commit.sha1, 'services');
+        $.getJSON(url, function (data) {
+            callback(data);
+        });
+    };
+
     return {
         commit: commit,
+        name: name,
         ref: ref,
         refs: refs,
+        services: services,
     };
 }();
 

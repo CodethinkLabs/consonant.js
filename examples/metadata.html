@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.js"></script>
+    <script type="text/javascript" src="../consonant.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        // extract the service URL from the document URL
+        var url = window.location.search.replace(/^\?url=/, '');
+        if (!url) {
+          url = 'http://localhost:8989';
+        }
+
+        // connect to the service
+        var service = new Service(url);
+
+        // display the service URL
+        $('#url').text(service.url);
+
+        service.ref('master', function (master) {
+          var commit = master.head;
+          
+          // fetch service name and display it
+          service.name(commit, function (name) {
+            $('#name').text(name);
+          });
+
+          // fetch service aliases and display them
+          service.services(commit, function (services) {
+            for (key in services) {
+              $('#services').append('<li>' + key + ': ' + services[key] + '</li>');
+            }
+          });
+        });
+
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Metadata in "master"</h1>
+    <p class="service">Consonant service at <tt id="url"></tt></p>
+    <p class="note">Append <tt>?url=&langle;URL&rangle;</tt> to use the Consonant service at <tt>&langle;URL&rangle;</tt> instead of <tt>http://localhost:8989</tt>.</p>
+    <h2>Service name</h2>
+    <p id="name"></p>
+    <h2>Service aliases</h2>
+    <ul id="services">
+    </ul>
+    <h2>Schema Object</h2>
+    <p>TODO</p>
+    <h2>Schema JSON</h2>
+  </body>
+</html>
