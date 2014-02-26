@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.js"></script>
+    <script type="text/javascript" src="../consonant.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        // extract the service URL from the document URL
+        var url = window.location.search.replace(/^\?url=/, '');
+        if (!url) {
+          url = 'http://localhost:8989';
+        }
+
+        // connect to the service
+        var service = new Service(url);
+
+        // display the service URL
+        $('#url').text(service.url);
+        
+        service.ref('master', function (master) {
+          service.objects(master.head, function (objects) {
+            for (class_name in objects) {
+              $('#objects').append('<h3>' + class_name + '</h3>');
+              $('#objects').append('<ul id="objects-' + class_name + '"></ul>');
+              for (index in objects[class_name]) {
+                var obj = objects[class_name][index];
+                console.log(obj);
+
+                $('#objects-' + class_name).append('<li>'
+                                                 + '  <table>'
+                                                 + '    <tr>'
+                                                 + '      <th>uuid</th>'
+                                                 + '      <th>' + obj.uuid + '</th>'
+                                                 + '    </tr>'
+                                                 + '    <tr>'
+                                                 + '      <td>properties</td>'
+                                                 + '      <td id="properties-' + obj.uuid + '"></td>'
+                                                 + '    </tr>'
+                                                 + '  </table>'
+                                                 + '</li>');
+                var properties = '<table>';
+                for (prop_name in obj.properties) {
+                  properties += '<tr>'
+                              + '  <td>' + obj.properties[prop_name].name + '</td>'
+                              + '  <td><pre>' + JSON.stringify(obj.get(prop_name), null, 4) + '</pre></td>'
+                              + '</tr>';
+                }
+                properties += '</table>';
+                $('#properties-' + obj.uuid).append(properties);
+              }
+            }
+          });
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Objects</h1>
+    <p class="service">Consonant service at <tt id="url"></tt></p>
+    <p class="note">Append <tt>?url=&langle;URL&rangle;</tt> to use the Consonant service at <tt>&langle;URL&rangle;</tt> instead of <tt>http://localhost:8989</tt>.</p>
+    <h2>Objects</h2>
+    <div id="objects">
+    </div>
+    <h2>JSON</h2>
+    <ul id="json">
+    </ul>
+  </body>
+</html>

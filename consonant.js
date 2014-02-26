@@ -202,9 +202,37 @@ Service.prototype = function () {
         });
     };
 
+    /**
+     * Fetches all objects from a given {Commit} and returns them via a
+     * callback.
+     *
+     * @method Service.prototype.objects
+     * @param {Commit} commit - {Commit} to fetch objects from.
+     * @param {arrayCallback} callback - Callback to which the objects are
+     *                                   passed on.
+     */
+    var objects = function (commit, callback) {
+        var url = Helpers.urljoin(this.url, 'commits', commit.sha1, 'objects');
+        $.getJSON(url, function (data) {
+            var objects = {};
+            for (class_name in data) {
+                var class_objects = [];
+                for (index in data[class_name]) {
+                    var object_data = data[class_name][index];
+                    var obj = ConsonantObject.parseJSON(object_data,
+                                                        class_name);
+                    class_objects.push(obj);
+                }
+                objects[class_name] = class_objects;
+            }
+            callback(objects);
+        });
+    };
+
     return {
         commit: commit,
         name: name,
+        objects: objects,
         ref: ref,
         refs: refs,
         schema: schema,
@@ -601,7 +629,7 @@ PropertyDefinition.prototype = function () {
  * Parses a JSON string into a {PropertyDefinition}.
  *
  * @param {string} data - A JSON representation of a {PropertyDefinition}.
- * @param {string name - Name of the property that is defined.
+ * @param {string} name - Name of the property that is defined.
  * @returns {PropertyDefinition} - The parsed {PropertyDefinition} object.
  */
 PropertyDefinition.parseJSON = function (data, name) {
@@ -653,4 +681,56 @@ PropertyDefinition.parseJSON = function (data, name) {
     }
 
     return definition;
+};
+
+
+
+/**
+ * An object in a Consonant {Schema}.
+ *
+ * @constructor
+ * @param {string} uuid - The object UUID.
+ * @param {string} klass - The name of the corresponding object class.
+ */
+var ConsonantObject = function (uuid, klass) {
+    /**
+     * The UUID of the object.
+     *
+     * @member {string}
+     */
+    this.uuid = uuid;
+
+    /**
+     * The name of the class that the object is an instance of.
+     *
+     * @member {string}
+     */
+    this.klass = klass;
+};
+
+ConsonantObject.prototype = function () {
+    /**
+     * Returns a JSON representation of the {ConsonantObject}.
+     *
+     * @method ConsonantObject.prototype.json
+     * @returns {string} - A JSON representation of the {ConsonantObject}.
+     */
+    var json = function () {
+        return JSON.stringify(this, null, 4);
+    };
+
+    return {
+        json: json,
+    };
+}();
+
+/**
+ * Parses a JSON string into a {ConsonantObject}.
+ *
+ * @param {string} data - A JSON representation of a {ConsonantObject}.
+ * @param {string} klass - Name of the corresponding object class.
+ * @returns {ConsonantObject} - The parsed {ConsonantObject} object.
+ */
+ConsonantObject.parseJSON = function (data, klass) {
+    return new ConsonantObject(data.uuid, klass);
 };
