@@ -24,19 +24,19 @@
 
             // render ref by accessing its properties
             $('#objects').append('<li><table>'
-                     + '  <tr>'
-                     + '    <td>url_aliases</td>'
-                     + '    <td>' + ref.url_aliases.join(', ') + '</td>'
-                     + '  </tr>'
-                     + '  <tr>'
-                     + '    <td>type</td>'
-                     + '    <td>' + ref.type + '</td>'
-                     + '  </tr>'
-                     + '  <tr>'
-                     + '    <td>head</td>'
-                     + '    <td><pre>' + ref.head.json() + '</pre></td>'
-                     + '  </tr>'
-                     + '</table></li>');
+                               + '  <tr>'
+                               + '    <td>url_aliases</td>'
+                               + '    <td>' + ref.url_aliases.join(', ') + '</td>'
+                               + '  </tr>'
+                               + '  <tr>'
+                               + '    <td>type</td>'
+                               + '    <td>' + ref.type + '</td>'
+                               + '  </tr>'
+                               + '  <tr>'
+                               + '    <td>head</td>'
+                               + '    <td><pre>' + ref.head.json() + '</pre></td>'
+                               + '  </tr>'
+                               + '</table></li>');
 
             $('body').append('<h3>' + name + '</h3>');
             $('body').append('<pre>' + refs[name].json() + '</pre>');
