@@ -28,6 +28,12 @@
 
           // fetch service aliases and display them
           service.services(commit, function (services) {
+            try {
+              if (Object.keys(services).length == 0) {
+                $('#services').append('<li>None</li>');
+              }
+            } catch(error) {
+            }
             for (key in services) {
               $('#services').append('<li>' + key + ': ' + services[key] + '</li>');
             }
