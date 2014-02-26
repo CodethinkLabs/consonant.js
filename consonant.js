@@ -237,7 +237,7 @@ Ref.prototype = function () {
 /**
  * Parses a JSON string into a {Ref}.
  *
- * @param {string} - A JSON representation of a {Ref}.
+ * @param {string} data - A JSON representation of a {Ref}.
  * @returns {Ref} - The parsed {Ref} object.
  */
 Ref.parseJSON = function (data) {
@@ -324,7 +324,7 @@ Commit.prototype = function () {
 /**
  * Parses a JSON string into a {Commit}.
  *
- * @param {string} - A JSON representation of a {Commit}.
+ * @param {string} data - A JSON representation of a {Commit}.
  * @returns {Commit} - The parsed {Commit} object.
  */
 Commit.parseJSON = function (data) {
