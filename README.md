@@ -14,7 +14,28 @@ The Consonant specification is hosted on
 Usage
 -----
 
-TODO
+Shown below is a simple example of
+
+* connecting to a service,
+* logging the SHA1 of the latest commit in the `master` branch,
+* fetching all objects from that commit, and
+* logging all todo objects.
+
+This is just one of many things you can do with `consonant.js`.
+
+    var service = new Service('http://localhost:8989');
+    service.ref('master', function (master) {
+        // log SHA1 of the latest commit in branch "master"
+        console.log(master.head.sha1);
+
+        // load all objects from this commit
+        service.objects(master.head, function (objects)) {
+            var todos = objects.todo;
+            for (todo in todos) {
+                console.log(todo);
+            }
+        });
+    });
 
 
 API documentation
@@ -22,7 +43,7 @@ API documentation
 
 The consonant.js reference manual can be built by running
 
-    jsdoc -d doc .
+    jsdoc -c jsdoc.conf -d doc .
 
 from the source tree. This requires [jsdoc](http://usejsdoc.org) to
 be installed.
