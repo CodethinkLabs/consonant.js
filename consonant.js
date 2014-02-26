@@ -225,18 +225,21 @@ Service.prototype = function () {
 var Ref = function (type, url_aliases, head) {
     /**
      * The type of the {Ref}, usually "branch" or "tag".
+     *
      * @member {string}
      */
     this.type = type;
 
     /**
      * An array with aliases of the ref.
+     *
      * @member {array}
      */
     this.url_aliases = url_aliases;
 
     /**
      * The latest {Commit} in the {Ref}.
+     *
      * @member {Commit}
      */
     this.head = head;
@@ -288,42 +291,49 @@ var Commit = function (sha1, author, author_date, committer, committer_date,
 {
     /**
      * The commit SHA1.
+     *
      * @member {string}
      */
     this.sha1 = sha1;
 
     /**
      * The author of the commit.
+     *
      * @member {string}
      */
     this.author = author;
 
     /**
      * The date the commit was authored.
+     *
      * @member {string}
      */
     this.author_date = author_date;
 
     /**
      * The person who created the commit.
+     *
      * @member {string}
      */
     this.committer = committer;
 
     /**
      * The date the commit was created.
+     *
      * @member {string}
      */
     this.committer_date = committer_date;
 
     /**
      * An array of parent commit SHA1s.
+     *
      * @member {array}
      */
     this.parents = parents;
 
     /**
      * The commit subject.
+     *
      * @member {string}
      */
     this.subject = subject;
@@ -371,7 +381,19 @@ Commit.parseJSON = function (data) {
  * @param {array} classes - Class definitions of the schema.
  */
 var Schema = function (name, classes) {
+    /**
+     * The name of the schema.
+     *
+     * @member {string}
+     */
     this.name = name;
+
+    /**
+     * Class definitions of the schema. An associative array
+     * mapping class names to {ClassDefinition} objects.
+     *
+     * @member {array}
+     */
     this.classes = classes;
 };
 
@@ -419,7 +441,19 @@ Schema.parseJSON = function (data) {
  * @param {array} properties - Property definitions of the class.
  */
 var ClassDefinition = function (name, properties) {
+    /**
+     * The name of the class.
+     *
+     * @member {string}
+     */
     this.name = name;
+
+    /**
+     * Property definitions of the class. An associative array that
+     * maps property names to {PropertyDefinition} objects.
+     *
+     * @member {array}
+     */
     this.properties = properties;
 };
 
@@ -471,9 +505,80 @@ ClassDefinition.parseJSON = function (data) {
  * @param {boolean} optional - Whether or not the property is optional.
  */
 var PropertyDefinition = function (name, type, optional) {
+    /**
+     * The name of the property.
+     *
+     * @member {string}
+     */
     this.name = name;
+
+    /**
+     * The property type. One of `boolean`, `integer`, `float`, `text`, `raw`,
+     * `reference`, `timestamp` and `list`.
+     *
+     * @member {string}
+     */
     this.type = type;
+
+    /**
+     * A boolean flag indicating whether the property is optional or not.
+     *
+     * @member {boolean}
+     */
     this.optional = optional;
+
+    /**
+     * Only for list property definitions. A {PropertyDefinition} that
+     * describes what type of values are stored in the list property.
+     *
+     * @member {PropertyDefinition}
+     */
+    this.elements = undefined;
+
+    /**
+     * Only for raw property definitions. An array of regular expressions
+     * of valid content types to be used for raw property data. The
+     * regular expressions are represented as strings.
+     *
+     * @member {array}
+     */
+    this.content_type_regex = undefined;
+
+    /**
+     * Only for reference property definitions. The name of the class of
+     * which objects can be referenced via the reference property.
+     *
+     * @member {string}
+     */
+    this.klass = undefined;
+
+    /**
+     * Only for reference property definitions. The name of the schema
+     * the target class (see the `klass` member) is defined in. This can
+     * be used to define a target class in another Consonant service.
+     *
+     * @member {string}
+     */
+    this.schema = undefined;
+
+    /**
+     * Only for reference property definitions. An optional name of a property
+     * in the target class. If specified, expresses that a reference in the
+     * property of the source object requires a reference back from the target
+     * object via the given property name.
+     *
+     * @member {string}
+     */
+    this.bidirectional = undefined;
+
+    /**
+     * Only for text property definitions. An array of regular expressions
+     * of valid values for the text property. The regular expressions are
+     * represented as strings.
+     *
+     * @member {array}
+     */
+    this.regex = undefined;
 };
 
 PropertyDefinition.prototype = function () {
@@ -528,7 +633,11 @@ PropertyDefinition.parseJSON = function (data, name) {
                 definition.schema = undefined;
             }
 
-            definition.bidirectional = data.bidirectional || false;
+            if (data.bidirectional) {
+                definition.bidirectional = data.bidirectional;
+            } else {
+                definition.bidirectional = undefined;
+            }
         },
         'text': function () {
             if (data.regex) {
