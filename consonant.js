@@ -80,7 +80,7 @@ Service.prototype = function () {
     var refs = function (callback) {
         var url = Helpers.urljoin(this.url, 'refs');
         $.getJSON(url, function (data) {
-            var refs = [];
+            var refs = {};
             for (name in data) {
                 refs[name] = Ref.parseJSON(data[name]);
             }
