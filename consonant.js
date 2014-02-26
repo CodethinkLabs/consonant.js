@@ -179,11 +179,35 @@ Service.prototype = function () {
         });
     };
 
+    /**
+     * Callback that takes a {Schema}.
+     *
+     * @callback schemaCallback
+     * @param {Schema} A {Schema}.
+     */
+
+    /**
+     * Fetches the {Schema} from a given {Commit} and returns it via a callback.
+     *
+     * @method Service.prototype.schema
+     * @param {Commit} commit - {Commit} to fetch the schema from.
+     * @param {schemaCallback} callback - Callback to which the schema is
+     *                                    passed on.
+     */
+    var schema = function (commit, callback) {
+        var url = Helpers.urljoin(this.url, 'commits', commit.sha1, 'schema');
+        $.getJSON(url, function (data) {
+            var schema = Schema.parseJSON(data);
+            callback(schema);
+        });
+    };
+
     return {
         commit: commit,
         name: name,
         ref: ref,
         refs: refs,
+        schema: schema,
         services: services,
     };
 }();
@@ -335,4 +359,189 @@ Commit.parseJSON = function (data) {
                       data['committer-date'],
                       data.parents,
                       data.subject);
+};
+
+
+
+/**
+ * A Consonant schema.
+ *
+ * @constructor
+ * @param {string} name - The name of the schema.
+ * @param {array} classes - Class definitions of the schema.
+ */
+var Schema = function (name, classes) {
+    this.name = name;
+    this.classes = classes;
+};
+
+Schema.prototype = function () {
+    /**
+     * Returns a JSON representation of the {Schema}.
+     *
+     * @method Schema.prototype.json
+     * @returns {string} - A JSON representation of the {Schema}.
+     */
+    var json = function () {
+        var data = JSON.stringify(this, null, 4);
+        return data;
+    };
+
+    return {
+        json: json,
+    };
+}();
+
+/**
+ * Parses a JSON string into a {Schema}.
+ *
+ * @param {string} data - A JSON representation of a {Schema}.
+ * @returns {Schema} - The parsed {Schema} object.
+ */
+Schema.parseJSON = function (data) {
+    var classes = {};
+    for (class_name in data.classes) {
+        var class_data = data.classes[class_name];
+        var class_definition = ClassDefinition.parseJSON(class_data);
+        class_definition.name = class_name;
+        classes[class_name] = class_definition;
+    }
+    return new Schema(data.name, classes);
+};
+
+
+
+/**
+ * A class definition in a Consonant {Schema}.
+ *
+ * @constructor
+ * @param {string} name - The name of the class.
+ * @param {array} properties - Property definitions of the class.
+ */
+var ClassDefinition = function (name, properties) {
+    this.name = name;
+    this.properties = properties;
+};
+
+ClassDefinition.prototype = function () {
+    /**
+     * Returns a JSON representation of the {ClassDefinition}.
+     *
+     * @method ClassDefinition.prototype.json
+     * @returns {string} - A JSON representation of the {ClassDefinition}.
+     */
+    var json = function () {
+        return JSON.stringify(this, null, 4);
+    };
+
+    return {
+        json: json,
+    };
+}();
+
+/**
+ * Parses a JSON string into a {ClassDefinition}.
+ *
+ * @param {string} data - A JSON representation of a {ClassDefinition}.
+ * @returns {ClassDefinition} - The parsed {ClassDefinition} object.
+ */
+ClassDefinition.parseJSON = function (data) {
+    var properties = {};
+    for (property_name in data.properties) {
+        var property_data = data.properties[property_name];
+        var property_definition = PropertyDefinition.parseJSON(property_data,
+                                                               property_name);
+        properties[property_name] = property_definition;
+    }
+    return new ClassDefinition(null, properties);
+};
+
+
+
+/**
+ * A property definition in a Consonant {Schema}.
+ *
+ * All property definitions include a type. Supported types are:
+ * `boolean`, `integer`, `float`, `text`, `raw`, `reference`, `timestamp`, and
+ * `list`.
+ *
+ * @constructor
+ * @param {string} name - The name of the property.
+ * @param {type} type - The property type ("text", "boolean", etc.)
+ * @param {boolean} optional - Whether or not the property is optional.
+ */
+var PropertyDefinition = function (name, type, optional) {
+    this.name = name;
+    this.type = type;
+    this.optional = optional;
+};
+
+PropertyDefinition.prototype = function () {
+    /**
+     * Returns a JSON representation of the {PropertyDefinition}.
+     *
+     * @method PropertyDefinition.prototype.json
+     * @returns {string} - A JSON representation of the {PropertyDefinition}.
+     */
+    var json = function () {
+        return JSON.stringify(this, null, 4);
+    };
+
+    return {
+        json: json,
+    };
+}();
+
+/**
+ * Parses a JSON string into a {PropertyDefinition}.
+ *
+ * @param {string} data - A JSON representation of a {PropertyDefinition}.
+ * @param {string name - Name of the property that is defined.
+ * @returns {PropertyDefinition} - The parsed {PropertyDefinition} object.
+ */
+PropertyDefinition.parseJSON = function (data, name) {
+    var optional = data.optional || false;
+    var definition = new PropertyDefinition(name, data.type, optional);
+
+    var type_loaders = {
+        'list': function () {
+            var elements = PropertyDefinition.parseJSON(data.elements, name);
+            definition.elements = elements;
+        },
+        'raw': function () {
+            if ('content-type-regex' in data) {
+                definition.content_type_regex = data['content-type-regex'];
+            } else {
+                definition.content_type_regex = [];
+            }
+        },
+        'reference': function () {
+            if ('class' in data) {
+                definition.klass = data['class'];
+            } else {
+                definition.klass = undefined;
+            }
+
+            if (data.schema) {
+                definition.schema = data.schema;
+            } else {
+                definition.schema = undefined;
+            }
+
+            definition.bidirectional = data.bidirectional || false;
+        },
+        'text': function () {
+            if (data.regex) {
+                definition.regex = data.regex;
+            } else {
+                definition.regex = [];
+            }
+        }
+    };
+
+    if (data.type in type_loaders) {
+        type_loaders[data.type]();
+    }
+
+    return definition;
 };

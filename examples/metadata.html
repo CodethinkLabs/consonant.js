@@ -32,6 +32,35 @@
               $('#services').append('<li>' + key + ': ' + services[key] + '</li>');
             }
           });
+
+          // fetch the schema from the server
+          service.schema(commit, function (schema) {
+            var classes = '<table>';
+            for (class_name in schema.classes) {
+              classes += '<tr>'
+                       + '  <td>' + class_name + '</td>'
+                       + '  <td><pre>' + schema.classes[class_name].json() + '</pre></td>'
+                       + '</tr>';
+            }
+            classes += '</table>';
+
+            // render the schema by accessing its properties
+            $('#schema').append('<table>'
+                              + '  <tr>'
+                              + '    <td>name</td>'
+                              + '    <td>' + schema.name + '</td>'
+                              + '  </tr>'
+                              + '  <tr>'
+                              + '    <td>classes</td>'
+                              + '    <td>'
+                              + classes
+                              + '    </td>'
+                              + '  </tr>'
+                              + '</table>');
+
+            // serialise the schema to JSON
+            $('#schema-json').text(schema.json());
+          });
         });
 
       });
@@ -47,7 +76,9 @@
     <ul id="services">
     </ul>
     <h2>Schema Object</h2>
-    <p>TODO</p>
+    <div id="schema">
+    </div>
     <h2>Schema JSON</h2>
+    <pre id="schema-json"></pre>
   </body>
 </html>
