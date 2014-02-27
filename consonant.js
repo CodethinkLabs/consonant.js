@@ -249,24 +249,39 @@
          * @param {consonant.Commit} commit - {Commit} to fetch objects from.
          * @param {consonant.ArrayCallback} callback - Callback to which the
          *                                             objects are passed on.
+         * @param {string} klass - Optional name of an object class for
+         *                         filtering.
          */
-        var objects = function (commit, callback) {
-            var url = Helpers.urljoin(this.url, 'commits', commit.sha1,
-                                      'objects');
-            $.getJSON(url, function (data) {
-                var objects = {};
-                for (var class_name in data) {
-                    var class_objects = [];
-                    for (var index in data[class_name]) {
-                        var object_data = data[class_name][index];
-                        var obj = consonant.Object.parseJSON(object_data,
-                                                             class_name);
-                        class_objects.push(obj);
+        var objects = function (commit, callback, klass) {
+            if (klass) {
+                var url1 = Helpers.urljoin(this.url, 'commits', commit.sha1,
+                                          'classes', klass, 'objects');
+                $.getJSON(url1, function (data) {
+                    var objects = [];
+                    for (var index in data) {
+                        var object_data = data[index];
+                        var obj = consonant.Object.parseJSON(object_data);
+                        objects.push(obj);
                     }
-                    objects[class_name] = class_objects;
-                }
-                callback(objects);
-            });
+                    callback(objects);
+                });
+            } else {
+                var url2 = Helpers.urljoin(this.url, 'commits', commit.sha1,
+                                          'objects');
+                $.getJSON(url2, function (data) {
+                    var objects = {};
+                    for (var class_name in data) {
+                        var class_objects = [];
+                        for (var index in data[class_name]) {
+                            var object_data = data[class_name][index];
+                            var obj = consonant.Object.parseJSON(object_data);
+                            class_objects.push(obj);
+                        }
+                        objects[class_name] = class_objects;
+                    }
+                    callback(objects);
+                });
+            }
         };
 
         return {
@@ -887,14 +902,14 @@
      * @param {string} klass - Name of the corresponding object class.
      * @returns {consonant.Object} - The parsed {Object} object.
      */
-    consonant.Object.parseJSON = function (data, klass) {
+    consonant.Object.parseJSON = function (data) {
         var properties = {};
         for (var property_name in data.properties) {
             var property_data = data.properties[property_name];
             var property = Property.parseJSON(property_data, property_name);
             properties[property_name] = property;
         }
-        return new consonant.Object(data.uuid, klass, properties);
+        return new consonant.Object(data.uuid, data['class'], properties);
     };
 
 
