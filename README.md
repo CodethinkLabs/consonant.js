@@ -23,7 +23,7 @@ Shown below is a simple example of
 
 This is just one of many things you can do with `consonant.js`.
 
-    var service = new Service('http://localhost:8989');
+    var service = new consonant.Service('http://localhost:8989');
     service.ref('master', function (master) {
         // log SHA1 of the latest commit in branch "master"
         console.log(master.head.sha1);

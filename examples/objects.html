@@ -13,7 +13,7 @@
         }
 
         // connect to the service
-        var service = new Service(url);
+        var service = new consonant.Service(url);
 
         // display the service URL
         $('#url').text(service.url);
@@ -47,6 +47,10 @@
                 }
                 properties += '</table>';
                 $('#properties-' + obj.uuid).append(properties);
+
+                // serialise object to JSON
+                $('#json').append('<li><pre id="json-' + obj.uuid + '"></pre></li>');
+                $('#json-' + obj.uuid).text(obj.json());
               }
             }
           });
