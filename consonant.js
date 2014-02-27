@@ -268,6 +268,7 @@
      * @param {string} type - The {Ref} type, usually "branch" or "tag".
      * @param {array} url_aliases - An array with aliases of the ref.
      * @param {consonant.Commit} head - The latest {Commit} in the {Ref}.
+     * @returns {consonant.Ref} - A new {Ref} object.
      */
     consonant.Ref = function (type, url_aliases, head) {
         /**
@@ -333,6 +334,7 @@
      * @param {string} committer_date - The date the commit was created.
      * @param {array} parents - An array of parent commit SHA1s.
      * @param {array} subject - The commit subject.
+     * @returns {consonant.Commit} - A new {Commit} object.
      */
     consonant.Commit = function (sha1, author, author_date, committer,
                                  committer_date, parents, subject)
@@ -488,6 +490,7 @@
      * @constructor
      * @param {string} name - The name of the schema.
      * @param {array} classes - Class definitions of the schema.
+     * @returns {consonant.Schema} - A new {Schema} object.
      */
     consonant.Schema = function (name, classes) {
         /**
@@ -549,6 +552,7 @@
      * @constructor
      * @param {string} name - The name of the class.
      * @param {array} properties - Property definitions of the class.
+     * @returns {consonant.ClassDefinition} - A new {ClassDefinition} object.
      */
     consonant.ClassDefinition = function (name, properties) {
         /**
@@ -615,6 +619,8 @@
      * @param {string} name - The name of the property.
      * @param {type} type - The property type ("text", "boolean", etc.)
      * @param {boolean} optional - Whether or not the property is optional.
+     * @returns {consonant.PropertyDefinition} - A new {PropertyDefinition}
+     *                                           object.
      */
     consonant.PropertyDefinition = function (name, type, optional) {
         /**
@@ -780,6 +786,7 @@
      * @param {string} klass - The name of the corresponding object class.
      * @param {array} properties - An array mapping property names to {Property}
      *                             objects holding the properties of the object.
+     * @returns {consonant.Object} - A new {Object} object.
      */
     consonant.Object = function (uuid, klass, properties) {
         /**
@@ -862,6 +869,7 @@
      * @constructor
      * @param {string} name - The property name.
      * @param {string} value - The property value.
+     * @returns {consonant.Property} - A new {Property} object.
      */
     consonant.Property = function (name, value) {
         /**
