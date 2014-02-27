@@ -28,8 +28,18 @@ This is just one of many things you can do with `consonant.js`.
         // log SHA1 of the latest commit in branch "master"
         console.log(master.head.sha1);
 
+        // load the service name from this commit
+        master.head.name(function (name) {
+            console.log(name);
+        });
+
+        // load the schema from this commit
+        master.head.schema(function (schema) {
+            console.log(schema.json());
+        });
+
         // load all objects from this commit
-        service.objects(master.head, function (objects)) {
+        master.head.objects(function (objects)) {
             var todos = objects.todo;
             for (todo in todos) {
                 console.log(todo);
