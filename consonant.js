@@ -46,8 +46,8 @@
     consonant.Helpers.urljoin = function (segment) {
         var segments = [];
         for (var i = 0; i < arguments.length; i++) {
-            var segment = arguments[i].replace(/(^[\s\/]+)|([\s\/]+$)/g, '');
-            segments.push(segment);
+            var stripped = arguments[i].replace(/(^[\s\/]+)|([\s\/]+$)/g, '');
+            segments.push(stripped);
         }
         return segments.join('/');
     };
@@ -86,7 +86,7 @@
             var url = Helpers.urljoin(this.url, 'refs');
             $.getJSON(url, function (data) {
                 var refs = {};
-                for (name in data) {
+                for (var name in data) {
                     refs[name] = Ref.parseJSON(data[name]);
                 }
                 callback(refs);
@@ -220,9 +220,9 @@
             var url = Helpers.urljoin(this.url, 'commits', commit.sha1, 'objects');
             $.getJSON(url, function (data) {
                 var objects = {};
-                for (class_name in data) {
+                for (var class_name in data) {
                     var class_objects = [];
-                    for (index in data[class_name]) {
+                    for (var index in data[class_name]) {
                         var object_data = data[class_name][index];
                         var obj = ConsonantObject.parseJSON(object_data,
                                                             class_name);
@@ -458,7 +458,7 @@
      */
     consonant.Schema.parseJSON = function (data) {
         var classes = {};
-        for (class_name in data.classes) {
+        for (var class_name in data.classes) {
             var class_data = data.classes[class_name];
             var class_definition = ClassDefinition.parseJSON(class_data);
             class_definition.name = class_name;
@@ -518,7 +518,7 @@
      */
     consonant.ClassDefinition.parseJSON = function (data) {
         var properties = {};
-        for (property_name in data.properties) {
+        for (var property_name in data.properties) {
             var property_data = data.properties[property_name];
             var property_definition = PropertyDefinition.parseJSON(property_data,
                                                                    property_name);
@@ -768,7 +768,7 @@
      */
     consonant.ConsonantObject.parseJSON = function (data, klass) {
         var properties = {};
-        for (property_name in data.properties) {
+        for (var property_name in data.properties) {
             var property_data = data.properties[property_name];
             var property = Property.parseJSON(property_data, property_name);
             properties[property_name] = property;
