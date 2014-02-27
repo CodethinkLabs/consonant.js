@@ -84,10 +84,12 @@
          */
         var refs = function (callback) {
             var url = Helpers.urljoin(this.url, 'refs');
+            var service = this;
             $.getJSON(url, function (data) {
                 var refs = {};
                 for (var name in data) {
                     refs[name] = Ref.parseJSON(data[name]);
+                    refs[name].head.service = service;
                 }
                 callback(refs);
             });
@@ -109,8 +111,10 @@
          */
         var ref = function (name, callback) {
             var url = Helpers.urljoin(this.url, 'refs', name);
+            var service = this;
             $.getJSON(url, function (data) {
                 var ref = Ref.parseJSON(data);
+                ref.head.service = service;
                 callback(ref);
             });
         };
@@ -132,8 +136,10 @@
          */
         var commit = function (sha1, callback) {
             var url = Helpers.urljoin(this.url, 'commits', sha1);
+            var service = this;
             $.getJSON(url, function (data) {
                 var commit = Commit.parseJSON(data);
+                commit.service = service;
                 callback(commit);
             });
         };
@@ -371,6 +377,12 @@
          * @member {string}
          */
         this.subject = subject;
+
+        /**
+         * The {Service} the commit was loaded from.
+         * @member {consonant.Service}
+         */
+        this.service = undefined;
     };
     var Commit = consonant.Commit;
 
@@ -385,8 +397,62 @@
             return JSON.stringify(this, null, 4);
         };
 
+        /**
+         * Fetches the service name from the {Commit} and returns it via
+         * a callback.
+         *
+         * @method consonant.Commit.prototype.name
+         * @param {consonant.StringCallback} callback - Callback to which the
+         *                                              name is passed on.
+         */
+        var name = function (callback) {
+            this.service.name(this, callback);
+        };
+
+        /**
+         * Loads all objects in the commit, optionally filtered by a class, and
+         * returns them via a callback.
+         *
+         * @method consonant.Commit.prototype.objects
+         * @param {consonant.ArrayCallback} callback - Callback to which the
+         *                                             resulting objects are
+         *                                             passed on.
+         * @param {string} klass - Name of the class to fetch objects for.
+         */
+        var objects = function(callback, klass) {
+          this.service.objects(this, callback, klass);
+        };
+
+        /**
+         * Fetches the {Schema} from the {Commit} and returns it via a callback.
+         *
+         * @method consonant.Commit.prototype.schema
+         * @param {consonant.SchemaCallback} callback - Callback to which the
+         *                                              schema is passed on.
+         */
+        var schema = function (callback) {
+            this.service.schema(this, callback);
+        };
+
+        /**
+         * Fetches the service aliases from the {Commit} and returns them
+         * via a callback.
+         *
+         * @method consonant.Commit.prototype.services
+         * @param {consonant.ArrayCallback} callback - Callback to which the
+         *                                             service aliases are
+         *                                             passed on.
+         */
+        var services = function (callback) {
+            this.service.services(this, callback);
+        };
+
         return {
             json: json,
+            name: name,
+            objects: objects,
+            schema: schema,
+            services: services,
         };
     }();
 

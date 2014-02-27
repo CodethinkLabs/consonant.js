@@ -22,12 +22,12 @@
           var commit = master.head;
           
           // fetch service name and display it
-          service.name(commit, function (name) {
+          commit.name(function (name) {
             $('#name').text(name);
           });
 
           // fetch service aliases and display them
-          service.services(commit, function (services) {
+          commit.services(function (services) {
             try {
               if (Object.keys(services).length == 0) {
                 $('#services').append('<li>None</li>');
@@ -40,7 +40,7 @@
           });
 
           // fetch the schema from the server
-          service.schema(commit, function (schema) {
+          commit.schema(function (schema) {
             var classes = '<table>';
             for (class_name in schema.classes) {
               classes += '<tr>'

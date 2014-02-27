@@ -19,7 +19,7 @@
         $('#url').text(service.url);
         
         service.ref('master', function (master) {
-          service.objects(master.head, function (objects) {
+          master.head.objects(function (objects) {
             for (class_name in objects) {
               $('#objects').append('<h3>' + class_name + '</h3>');
               $('#objects').append('<ul id="objects-' + class_name + '"></ul>');
