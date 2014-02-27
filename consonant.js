@@ -55,11 +55,56 @@
 
 
     /**
+     * Callback that takes a refs dictionary, mapping canonical ref
+     * names to {Ref} objects.
+     *
+     * @callback consonant.RefsCallback
+     * @param {array} A refs dictionary mapping ref names to {Ref} objects.
+     */
+
+    /**
+     * Callback that takes a {Ref}.
+     *
+     * @callback consonant.RefCallback
+     * @param {consonant.Ref} A {Ref} object.
+     */
+
+    /**
+     * Callback that takes a {Commit}.
+     *
+     * @callback consonant.CommitCallback
+     * @param {consonant.Commit} A {Commit} object.
+     */
+
+    /**
+     * Callback that takes an array.
+     *
+     * @callback consonant.ArrayCallback
+     * @param {array} An array.
+     */
+
+    /**
+     * Callback that takes a {string}.
+     *
+     * @callback consonant.StringCallback
+     * @param {string} A string (e.g. the service name).
+     */
+
+    /**
+     * Callback that takes a {Schema}.
+     *
+     * @callback consonant.SchemaCallback
+     * @param {consonant.Schema} A {Schema}.
+     */
+
+
+
+    /**
      * A Consonant service.
      *
      * @constructor
      * @param {string} url - The HTTP URL of the Consonant service.
-     * @returns {Service} A Service object for the given URL.
+     * @returns {consonant.Service} A Service object for the given URL.
      */
     consonant.Service = function (url) {
         this.url = url;
@@ -68,19 +113,12 @@
 
     consonant.Service.prototype = function () {
         /**
-         * Callback that takes a refs dictionary, mapping canonical ref
-         * names to {Ref} objects.
-         *
-         * @callback refsCallback
-         * @param {array} A refs dictionary mapping ref names to {Ref} objects.
-         */
-
-        /**
          * Fetches all refs from the service and returns them via a callback.
          *
-         * @method Service.prototype.refs
-         * @param {refsCallback} callback - Callback to which the resulting refs
-         *                                  are passed on.
+         * @method consonant.Service.prototype.refs
+         * @param {consonant.RefsCallback} callback - Callback to which the
+         *                                            resulting refs are passed
+         *                                            on.
          */
         var refs = function (callback) {
             var url = Helpers.urljoin(this.url, 'refs');
@@ -96,18 +134,13 @@
         };
 
         /**
-         * Callback that takes a {Ref}.
+         * Fetches a specific {Ref} from the service and returns it via a
+         * callback.
          *
-         * @callback refCallback
-         * @param {Ref} A {Ref} object.
-         */
-
-        /**
-         * Fetches a specific {Ref} from the service and returns it via a callback.
-         *
-         * @method Service.prototype.ref
+         * @method consonant.Service.prototype.ref
          * @param {string} name - Name of the {Ref} to fetch.
-         * @param {refCallback} callback - Callback to which the {Ref} is passed on.
+         * @param {consonant.RefCallback} callback - Callback to which the
+         *                                           {Ref} is passed on.
          */
         var ref = function (name, callback) {
             var url = Helpers.urljoin(this.url, 'refs', name);
@@ -120,19 +153,12 @@
         };
 
         /**
-         * Callback that takes a {Commit}.
-         *
-         * @callback commitCallback
-         * @param {Commit} A {Commit} object.
-         */
-
-        /**
          * Fetches a {Commit} from the service and returns it via a callback.
          *
-         * @method Service.prototype.commit
+         * @method consonant.Service.prototype.commit
          * @param {string} sha1 - SHA1 of the {Commit} to fetch.
-         * @param {commitCallback} callback - Callback to which the {Commit} is
-         *                                    passed on.
+         * @param {consonant.CommitCallback} callback - Callback to which the
+         *                                              {Commit} is passed on.
          */
         var commit = function (sha1, callback) {
             var url = Helpers.urljoin(this.url, 'commits', sha1);
@@ -145,20 +171,13 @@
         };
 
         /**
-         * Callback that takes a {string}.
-         *
-         * @callback stringCallback
-         * @param {string} A string (e.g. the service name).
-         */
-
-        /**
          * Fetches the service name from a given {Commit} and returns it via
          * a callback.
          *
-         * @method Service.prototype.name
-         * @param {Commit} commit - {Commit} to fetch the service name from.
-         * @param {stringCallback} callback - Callback to which the name is
-         *                                    passed on.
+         * @method consonant.Service.prototype.name
+         * @param {consonant.Commit} commit - {Commit} to fetch the name from.
+         * @param {consonant.StringCallback} callback - Callback to which the
+         *                                              name is passed on.
          */
         var name = function (commit, callback) {
             var url = Helpers.urljoin(this.url, 'commits', commit.sha1, 'name');
@@ -168,20 +187,14 @@
         };
 
         /**
-         * Callback that takes an array.
-         *
-         * @callback arrayCallback
-         * @param {array} An array.
-         */
-
-        /**
          * Fetches the service aliases from a given {Commit} and returns them
          * via a callback.
          *
-         * @method Service.prototype.services
-         * @param {Commit} commit - {Commit} to fetch the service aliases from.
-         * @param {arrayCallback} callback - Callback to which the service aliases
-         *                                   are passed on.
+         * @method consonant.Service.prototype.services
+         * @param {consonant.Commit} commit - {Commit} to fetch aliases from.
+         * @param {consonant.ArrayCallback} callback - Callback to which the
+         *                                             service aliases are
+         *                                             passed on.
          */
         var services = function (commit, callback) {
             var url = Helpers.urljoin(this.url, 'commits', commit.sha1, 'services');
@@ -191,19 +204,13 @@
         };
 
         /**
-         * Callback that takes a {Schema}.
+         * Fetches the {Schema} from a given {Commit} and returns it via a
+         * callback.
          *
-         * @callback schemaCallback
-         * @param {Schema} A {Schema}.
-         */
-
-        /**
-         * Fetches the {Schema} from a given {Commit} and returns it via a callback.
-         *
-         * @method Service.prototype.schema
-         * @param {Commit} commit - {Commit} to fetch the schema from.
-         * @param {schemaCallback} callback - Callback to which the schema is
-         *                                    passed on.
+         * @method consonant.Service.prototype.schema
+         * @param {consonant.Commit} commit - {Commit} to fetch the schema from.
+         * @param {consonant.SchemaCallback} callback - Callback to which the
+         *                                              schema is passed on.
          */
         var schema = function (commit, callback) {
             var url = Helpers.urljoin(this.url, 'commits', commit.sha1, 'schema');
@@ -217,21 +224,22 @@
          * Fetches all objects from a given {Commit} and returns them via a
          * callback.
          *
-         * @method Service.prototype.objects
-         * @param {Commit} commit - {Commit} to fetch objects from.
-         * @param {arrayCallback} callback - Callback to which the objects are
-         *                                   passed on.
+         * @method consonant.Service.prototype.objects
+         * @param {consonant.Commit} commit - {Commit} to fetch objects from.
+         * @param {consonant.ArrayCallback} callback - Callback to which the
+         *                                             objects are passed on.
          */
         var objects = function (commit, callback) {
-            var url = Helpers.urljoin(this.url, 'commits', commit.sha1, 'objects');
+            var url = Helpers.urljoin(this.url, 'commits', commit.sha1,
+                                      'objects');
             $.getJSON(url, function (data) {
                 var objects = {};
                 for (var class_name in data) {
                     var class_objects = [];
                     for (var index in data[class_name]) {
                         var object_data = data[class_name][index];
-                        var obj = ConsonantObject.parseJSON(object_data,
-                                                            class_name);
+                        var obj = consonant.Object.parseJSON(object_data,
+                                                             class_name);
                         class_objects.push(obj);
                     }
                     objects[class_name] = class_objects;
@@ -259,7 +267,7 @@
      * @constructor
      * @param {string} type - The {Ref} type, usually "branch" or "tag".
      * @param {array} url_aliases - An array with aliases of the ref.
-     * @param {Commit} head - The latest {Commit} in the {Ref}.
+     * @param {consonant.Commit} head - The latest {Commit} in the {Ref}.
      */
     consonant.Ref = function (type, url_aliases, head) {
         /**
@@ -279,7 +287,7 @@
         /**
          * The latest {Commit} in the {Ref}.
          *
-         * @member {Commit}
+         * @member {consonant.Commit}
          */
         this.head = head;
     };
@@ -289,7 +297,7 @@
         /**
          * Returns a JSON representation of the {Ref}.
          *
-         * @method Ref.prototype.json
+         * @method consonant.Ref.prototype.json
          * @returns {string} - A JSON representation of the {Ref}.
          */
         var json = function () {
@@ -305,7 +313,7 @@
      * Parses a JSON string into a {Ref}.
      *
      * @param {string} data - A JSON representation of a {Ref}.
-     * @returns {Ref} - The parsed {Ref} object.
+     * @returns {consonant.Ref} - The parsed {Ref} object.
      */
     consonant.Ref.parseJSON = function (data) {
         var head = Commit.parseJSON(data.head);
@@ -390,7 +398,7 @@
         /**
          * Returns a JSON representation of the {Commit}.
          *
-         * @method Commit.prototype.json
+         * @method consonant.Commit.prototype.json
          * @returns {string} - A JSON representation of the {Commit}.
          */
         var json = function () {
@@ -460,7 +468,7 @@
      * Parses a JSON string into a {Commit}.
      *
      * @param {string} data - A JSON representation of a {Commit}.
-     * @returns {Commit} - The parsed {Commit} object.
+     * @returns {consonant.Commit} - The parsed {Commit} object.
      */
     consonant.Commit.parseJSON = function (data) {
         return new Commit(data.sha1,
@@ -503,7 +511,7 @@
         /**
          * Returns a JSON representation of the {Schema}.
          *
-         * @method Schema.prototype.json
+         * @method consonant.Schema.prototype.json
          * @returns {string} - A JSON representation of the {Schema}.
          */
         var json = function () {
@@ -520,7 +528,7 @@
      * Parses a JSON string into a {Schema}.
      *
      * @param {string} data - A JSON representation of a {Schema}.
-     * @returns {Schema} - The parsed {Schema} object.
+     * @returns {consonant.Schema} - The parsed {Schema} object.
      */
     consonant.Schema.parseJSON = function (data) {
         var classes = {};
@@ -564,7 +572,7 @@
         /**
          * Returns a JSON representation of the {ClassDefinition}.
          *
-         * @method ClassDefinition.prototype.json
+         * @method consonant.ClassDefinition.prototype.json
          * @returns {string} - A JSON representation of the {ClassDefinition}.
          */
         var json = function () {
@@ -580,15 +588,16 @@
      * Parses a JSON string into a {ClassDefinition}.
      *
      * @param {string} data - A JSON representation of a {ClassDefinition}.
-     * @returns {ClassDefinition} - The parsed {ClassDefinition} object.
+     * @returns {consonant.ClassDefinition} - The parsed {ClassDefinition}
+     *                                        object.
      */
     consonant.ClassDefinition.parseJSON = function (data) {
         var properties = {};
         for (var property_name in data.properties) {
             var property_data = data.properties[property_name];
-            var property_definition = PropertyDefinition.parseJSON(property_data,
-                                                                   property_name);
-            properties[property_name] = property_definition;
+            var property_def = PropertyDefinition.parseJSON(property_data,
+                                                            property_name);
+            properties[property_name] = property_def;
         }
         return new ClassDefinition(null, properties);
     };
@@ -599,8 +608,8 @@
      * A property definition in a Consonant {Schema}.
      *
      * All property definitions include a type. Supported types are:
-     * `boolean`, `integer`, `float`, `text`, `raw`, `reference`, `timestamp`, and
-     * `list`.
+     * `boolean`, `integer`, `float`, `text`, `raw`, `reference`, `timestamp`,
+     * and `list`.
      *
      * @constructor
      * @param {string} name - The name of the property.
@@ -616,8 +625,8 @@
         this.name = name;
 
         /**
-         * The property type. One of `boolean`, `integer`, `float`, `text`, `raw`,
-         * `reference`, `timestamp` and `list`.
+         * The property type. One of `boolean`, `integer`, `float`, `text`,
+         * `raw`, `reference`, `timestamp` and `list`.
          *
          * @member {string}
          */
@@ -634,7 +643,7 @@
          * Only for list property definitions. A {PropertyDefinition} that
          * describes what type of values are stored in the list property.
          *
-         * @member {PropertyDefinition}
+         * @member {consonant.PropertyDefinition}
          */
         this.elements = undefined;
 
@@ -689,7 +698,7 @@
         /**
          * Returns a JSON representation of the {PropertyDefinition}.
          *
-         * @method PropertyDefinition.prototype.json
+         * @method consonant.PropertyDefinition.prototype.json
          * @returns {string} - A JSON representation of the {PropertyDefinition}.
          */
         var json = function () {
@@ -706,7 +715,8 @@
      *
      * @param {string} data - A JSON representation of a {PropertyDefinition}.
      * @param {string} name - Name of the property that is defined.
-     * @returns {PropertyDefinition} - The parsed {PropertyDefinition} object.
+     * @returns {consonant.PropertyDefinition} - The parsed
+     *                                           {PropertyDefinition} object.
      */
     consonant.PropertyDefinition.parseJSON = function (data, name) {
         var optional = data.optional || false;
@@ -771,7 +781,7 @@
      * @param {array} properties - An array mapping property names to {Property}
      *                             objects holding the properties of the object.
      */
-    consonant.ConsonantObject = function (uuid, klass, properties) {
+    consonant.Object = function (uuid, klass, properties) {
         /**
          * The UUID of the object.
          *
@@ -789,17 +799,18 @@
         /**
          * The object properties, stored in an associative array mapping property
          * names to {Property} objects.
+         *
+         * @member {array}
          */
         this.properties = properties;
     };
-    var ConsonantObject = consonant.ConsonantObject;
 
-    consonant.ConsonantObject.prototype = function () {
+    consonant.Object.prototype = function () {
         /**
-         * Returns a JSON representation of the {ConsonantObject}.
+         * Returns a JSON representation of the {Object}.
          *
-         * @method ConsonantObject.prototype.json
-         * @returns {string} - A JSON representation of the {ConsonantObject}.
+         * @method consonant.Object.prototype.json
+         * @returns {string} - A JSON representation of the {Object}.
          */
         var json = function () {
             return JSON.stringify(this, null, 4);
@@ -808,6 +819,7 @@
         /**
          * Looks up a property by its name and returns its value.
          *
+         * @method consonant.Object.prototype.get
          * @param {string} name - Name of the property.
          * @returns {any} - The value of the property with the given name.
          */
@@ -826,20 +838,20 @@
     }();
 
     /**
-     * Parses a JSON string into a {ConsonantObject}.
+     * Parses a JSON string into a {Object}.
      *
-     * @param {string} data - A JSON representation of a {ConsonantObject}.
+     * @param {string} data - A JSON representation of a {Object}.
      * @param {string} klass - Name of the corresponding object class.
-     * @returns {ConsonantObject} - The parsed {ConsonantObject} object.
+     * @returns {consonant.Object} - The parsed {Object} object.
      */
-    consonant.ConsonantObject.parseJSON = function (data, klass) {
+    consonant.Object.parseJSON = function (data, klass) {
         var properties = {};
         for (var property_name in data.properties) {
             var property_data = data.properties[property_name];
             var property = Property.parseJSON(property_data, property_name);
             properties[property_name] = property;
         }
-        return new ConsonantObject(data.uuid, klass, properties);
+        return new consonant.Object(data.uuid, klass, properties);
     };
 
 
@@ -872,7 +884,7 @@
         /**
          * Returns a JSON representation of the {Property}.
          *
-         * @method Property.prototype.json
+         * @method consonant.Property.prototype.json
          * @returns {string} - A JSON representation of the {Property}.
          */
         var json = function () {
@@ -889,7 +901,7 @@
      *
      * @param {string} data - A JSON representation of a {Property}.
      * @param {string} name - Name of the property.
-     * @returns {Property} - The parsed {Property} object.
+     * @returns {consonant.Property} - The parsed {Property} object.
      */
     consonant.Property.parseJSON = function (data, name) {
         return new Property(name, data);
