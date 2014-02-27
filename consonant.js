@@ -221,6 +221,27 @@
         };
 
         /**
+         * Loads a specific object from a given {Commit} and returns it via a
+         * callback.
+         *
+         * @method consonant.Commit.prototype.object
+         * @param {consonant.Commit} commit - The {Commit} to load the object from.
+         * @param {string} uuid - The object UUID.
+         * @param {consonant.ObjectCallback} callback - Callback to which the
+         *                                              resulting object is
+         *                                              passed on.
+         */
+
+        var object = function(commit, uuid, callback) {
+            var url = Helpers.urljoin(this.url, 'commits', commit.sha1,
+                                      'objects', uuid);
+            $.getJSON(url, function (data) {
+                var obj = consonant.Object.parseJSON(data);
+                callback(obj);
+            });
+        };
+
+        /**
          * Fetches all objects from a given {Commit} and returns them via a
          * callback.
          *
@@ -251,6 +272,7 @@
         return {
             commit: commit,
             name: name,
+            object: object,
             objects: objects,
             ref: ref,
             refs: refs,
@@ -420,6 +442,19 @@
         };
 
         /**
+         * Loads a specific object in the commit and return it via a callback.
+         *
+         * @method consonant.Commit.prototype.object
+         * @param {string} uuid - The object UUID.
+         * @param {consonant.ObjectCallback} callback - Callback to which the
+         *                                              resulting object is
+         *                                              passed on.
+         */
+        var object = function(uuid, callback) {
+          this.service.object(this, uuid, callback);
+        };
+
+        /**
          * Loads all objects in the commit, optionally filtered by a class, and
          * returns them via a callback.
          *
@@ -460,6 +495,7 @@
         return {
             json: json,
             name: name,
+            object: object,
             objects: objects,
             schema: schema,
             services: services,
