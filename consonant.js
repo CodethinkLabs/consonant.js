@@ -113,6 +113,20 @@
 
     consonant.Service.prototype = function () {
         /**
+         * TODO
+         */
+        var apply = function (transaction, callback) {
+            var url = Helpers.urljoin(this.url, 'transactions');
+            $.ajax({
+                type: 'POST',
+                url: url,
+                data: transaction.multipart_mixed(),
+                success: callback,
+                contentType: 'multipart/mixed',
+            });
+        };
+
+        /**
          * Fetches all refs from the service and returns them via a callback.
          *
          * @method consonant.Service.prototype.refs
@@ -285,6 +299,7 @@
         };
 
         return {
+            apply: apply,
             commit: commit,
             name: name,
             object: object,
@@ -965,4 +980,119 @@
     consonant.Property.parseJSON = function (data, name) {
         return new Property(name, data);
     };
+
+    /**
+     * TODO
+     */
+    consonant.Transaction = function (service) {
+        /**
+         * TODO
+         */
+        this.service = service;
+
+        /**
+         * TODO
+         */
+        this.actions = [];
+    };
+    var Transaction = consonant.Transaction;
+
+    consonant.Transaction.prototype = function () {
+        /**
+         * TODO
+         */
+        var begin = function (source) {
+            this.source = source;
+        };
+
+        /**
+         * TODO
+         */
+        var commit = function (target, author, message, callback) {
+            this.target = target;
+            this.author = author;
+            this.message = message;
+
+            this.service.apply(this, callback);
+        };
+
+        /**
+         * TODO
+         */
+        var create = function (klass, properties) {
+            this.actions.push({
+                'action': 'create',
+                'id': this.actions.length,
+                'class': klass,
+                'properties': properties,
+            });
+            return this.actions.length-1;
+        };
+
+        /**
+         * TODO
+         */
+        var update = function (uuid, properties) {
+            this.actions.push({
+                'action': 'update',
+                'id': this.actions.length,
+                'object': { 'uuid': uuid },
+                'properties': properties,
+            });
+            return this.actions.length-1;
+        };
+
+        /**
+         * TODO
+         */
+        var multipart_mixed = function () {
+            var parts = [];
+
+            // add multipart header
+            parts.push(['multipart/mixed; boundary=CONSONANT', '']);
+
+            // add begin action
+            parts.push(['application/json', JSON.stringify({
+                'action': 'begin',
+                'source': this.source
+            })]);
+
+            $.each(this.actions, function (index, action) {
+                parts.push(['application/json',
+                            JSON.stringify(action)]);
+            });
+
+            // add commit action
+            var date = new Date();
+            var seconds = Math.round(date.getTime() / 1000);
+            var timestamp = seconds + ' +0000';
+            parts.push(['application/json', JSON.stringify({
+                'action': 'commit',
+                'target': this.target,
+                'author': this.author,
+                'author-date': timestamp,
+                'committer': this.author,
+                'committer-date': timestamp,
+                'message': this.message
+            })]);
+
+            parts = $.map(parts, function (part) {
+                var type = part[0];
+                var data = part[1];
+                return ['Content-Type: ' + type, '', data].join('\n');
+            });
+            parts = parts.join('\n--CONSONANT\n');
+
+            return parts;
+        };
+
+        return {
+            begin: begin,
+            commit: commit,
+            create: create,
+            multipart_mixed: multipart_mixed,
+            update: update,
+        };
+    }();
+
 } (window.consonant = window.consonant || {}, jQuery));
