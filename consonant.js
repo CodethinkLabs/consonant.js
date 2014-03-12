@@ -97,6 +97,12 @@
      * @param {consonant.Schema} A {Schema}.
      */
 
+    /**
+     * Callback for reporting completion of transactions.
+     *
+     * @callback consonant.TransactionCallback
+     */
+
 
 
     /**
@@ -113,14 +119,22 @@
 
     consonant.Service.prototype = function () {
         /**
-         * TODO
+         * Applies a transaction and calls the optionally provided callback
+         * upon completion.
+         *
+         * @method consonant.Service.prototype.apply
+         * @param {consonant.Transaction} transaction - Transaction to apply.
+         * @param {consonant.TransactionCallback} callback - Callback to call
+         *                                                   when the
+         *                                                   transaction
+         *                                                   has been applied.
          */
         var apply = function (transaction, callback) {
             var url = Helpers.urljoin(this.url, 'transactions');
             $.ajax({
                 type: 'POST',
                 url: url,
-                data: transaction.multipart_mixed(),
+                data: transaction.data(),
                 success: callback,
                 contentType: 'multipart/mixed',
             });
@@ -981,6 +995,239 @@
         return new Property(name, data);
     };
 
+
+
+    /**
+     * Representation of an object currently being created as part of a
+     * transaction. {TransactionCreatedObject} provides a convenient
+     * interface to set properties of the new object. Instances of this
+     * class can also be passed to methods like `append()`, `prepend()`
+     * or `insert()` of {TransactionUpdatedObject} to e.g. add the new
+     * object to an existing object.
+     *
+     * {TransactionCreatedObject} instances must not be created directly.
+     * Instead, {Transaction.create()} should be used to create new
+     * objects.
+     *
+     * @constructor
+     * @param {string} action_id - A unique action ID within a transaction.
+     * @param {string} klass - Name of the klass to create an object for.
+     */
+    consonant.TransactionCreatedObject = function (action_id, klass) {
+        /**
+         * A unique action ID within a transaction.
+         * @member {string}
+         */
+        this.action_id = action_id;
+
+        /**
+         * Name of the klass the new object will be an instance of.
+         * @member {string}
+         */
+        this.klass = klass;
+
+        /**
+         * An associative array holding the properties of the new object.
+         * @member {array}
+         */
+        this.properties = {};
+    };
+    var TransactionCreatedObject = consonant.TransactionCreatedObject;
+
+    consonant.TransactionCreatedObject.prototype = function () {
+        var _getPropertyArray = function (this_, property) {
+            return this_.properties[property] ?
+                   this_.properties[property] :
+                   [];
+        };
+
+        /**
+         * Appends a value to a list property. Automatically resolves {Object},
+         * {TransactionCreatedObject} and {TransactionUpdatedObject} instances
+         * into references.
+         *
+         * @method consonant.TransactionCreatedObject.prototype.append
+         * @param {string} property - Name of the list property.
+         * @param {any} value - Value or object to append to the property.
+         */
+        var append = function (property, value) {
+            var values = _getPropertyArray(this, property);
+
+            if ('action_id' in value) {
+                values.push({ action: value.action_id });
+            } else if ('uuid' in value) {
+                values.push({ uuid: value.uuid });
+            } else {
+                values.push(value);
+            }
+
+            this.properties[property] = values;
+        };
+
+        /**
+         * Returns an array of transaction parts for createing the object.
+         * These parts are intended for constructing a multipart/mixed
+         * transaction that can be sent over to a Consonant service.
+         *
+         * @returns {array} - An array of multipart/mixed transaction parts
+         *                    for creating the object.
+         */
+        var parts = function () {
+            var list = [];
+            list.push({
+                type: 'application/json',
+                data: JSON.stringify({
+                    'action': 'create',
+                    'id': this.action_id,
+                    'class': this.klass,
+                    'properties': this.properties,
+                }, null, 2),
+            });
+            return list;
+        };
+
+        /**
+         * Set a property to a given value. Automatically resolves {Object},
+         * {TransactionCreatedObject} and {TransactionUpdatedObject} instances
+         * into references.
+         *
+         * @param {string} property - Property to set.
+         * @param {any} value - New property value or object to reference.
+         */
+        var set = function (property, value) {
+            if ('action_id' in value) {
+                this.properties[property] = { action: value.action_id };
+            } else if ('uuid' in value) {
+                this.properties[property] = { uuid: value.uuid };
+            } else {
+                this.properties[property] = value;
+            }
+        };
+
+        return {
+            append: append,
+            parts: parts,
+            set: set,
+        };
+    }();
+
+
+    /**
+     * TODO
+     */
+    consonant.TransactionUpdatedObject = function (action_id, object) {
+        /**
+         * TODO
+         */
+        this.action_id = action_id;
+
+        /**
+         * TODO
+         */
+        this.object = object;
+
+        /**
+         * TODO
+         */
+        this.properties = {};
+    };
+    var TransactionUpdatedObject = consonant.TransactionUpdatedObject;
+
+    consonant.TransactionUpdatedObject.prototype = function () {
+        var _getPropertyArray = function (this_, property) {
+            var current = [];
+            if (property in this_.properties) {
+                current = this_.properties[property];
+            } else {
+                current = this_.object.get(property);
+            }
+            return current ? current : [];
+        };
+
+        var insert = function (property, index, value) {
+            var current = _getPropertyArray(this, property);
+
+            console.log('insert at', index);
+
+            if ('action_id' in value) {
+                current.splice(index, 0, { action: value.action_id });
+            } else if ('uuid' in value) {
+                current.splice(index, 0, { uuid: value.uuid });
+            } else {
+                current.splice(index, 0, value);
+            }
+
+            this.properties[property] = current;
+        };
+
+        /**
+         * TODO
+         */
+        var parts = function () {
+            var list = [];
+            list.push({
+                type: 'application/json',
+                data: JSON.stringify({
+                    'action': 'update',
+                    'id': this.action_id,
+                    'object': { uuid: this.object.uuid },
+                    'properties': this.properties,
+                }, null, 2),
+            });
+            return list;
+        };
+
+        /**
+         * TODO
+         */
+        var prepend = function (property, value) {
+            var current = _getPropertyArray(this, property);
+
+            if ('action_id' in value) {
+                current.unshift({ action: value.action_id });
+            } else if ('uuid' in value) {
+                current.unshift({ uuid: value.uuid });
+            } else {
+                current.unshift(value);
+            }
+
+            this.properties[property] = current;
+        };
+
+        /**
+         * TODO
+         */
+        var remove = function (property, value) {
+            var current = _getPropertyArray(this, property);
+
+            current = $.grep(current, function (element) {
+                if ('uuid' in value) {
+                    return element.uuid != value.uuid;
+                } else {
+                    return element != value;
+                }
+            });
+
+            this.properties[property] = current;
+        };
+
+        /**
+         * TODO
+         */
+        var set = function (property, value) {
+            this.properties[property] = value;
+        };
+
+        return {
+            insert: insert,
+            parts: parts,
+            prepend: prepend,
+            remove: remove,
+            set: set,
+        };
+    }();
+
+
     /**
      * TODO
      */
@@ -993,7 +1240,7 @@
         /**
          * TODO
          */
-        this.actions = [];
+        this.objects = [];
     };
     var Transaction = consonant.Transaction;
 
@@ -1019,78 +1266,83 @@
         /**
          * TODO
          */
-        var create = function (klass, properties) {
-            this.actions.push({
-                'action': 'create',
-                'id': this.actions.length,
-                'class': klass,
-                'properties': properties,
-            });
-            return this.actions.length-1;
+        var create = function (klass) {
+            var id = this.objects.length;
+            var object = new TransactionCreatedObject(id, klass);
+            this.objects.push(object);
+            return object;
         };
 
         /**
          * TODO
          */
-        var update = function (uuid, properties) {
-            this.actions.push({
-                'action': 'update',
-                'id': this.actions.length,
-                'object': { 'uuid': uuid },
-                'properties': properties,
-            });
-            return this.actions.length-1;
+        var update = function (object) {
+            var id = this.objects.length;
+            var updated_object = new TransactionUpdatedObject(id, object);
+            this.objects.push(updated_object);
+            return updated_object;
         };
 
         /**
          * TODO
+         *
+         * @todo This method doesn't currently take the timezone into
+         *       consideration when generating timestamps (they are all
+         *       +0000).
          */
-        var multipart_mixed = function () {
+        var data = function () {
             var parts = [];
 
-            // add multipart header
-            parts.push(['multipart/mixed; boundary=CONSONANT', '']);
-
-            // add begin action
-            parts.push(['application/json', JSON.stringify({
-                'action': 'begin',
-                'source': this.source
-            })]);
-
-            $.each(this.actions, function (index, action) {
-                parts.push(['application/json',
-                            JSON.stringify(action)]);
+            // define the header part
+            parts.push({
+                type: 'multipart/mixed; boundary=CONSONANT',
+                data: '',
             });
 
-            // add commit action
+            // define the begin action part
+            parts.push({
+                type: 'application/json',
+                data: JSON.stringify({
+                    'action': 'begin',
+                    'source': this.source,
+                }, null, 2),
+            });
+
+            // add parts from all object creations/updates/removals
+            $.each(this.objects, function (index, object) {
+                $.each(object.parts(), function (index, part) {
+                    parts.push(part);
+                });
+            });
+
+            // define the commit action part
             var date = new Date();
             var seconds = Math.round(date.getTime() / 1000);
             var timestamp = seconds + ' +0000';
-            parts.push(['application/json', JSON.stringify({
-                'action': 'commit',
-                'target': this.target,
-                'author': this.author,
-                'author-date': timestamp,
-                'committer': this.author,
-                'committer-date': timestamp,
-                'message': this.message
-            })]);
-
-            parts = $.map(parts, function (part) {
-                var type = part[0];
-                var data = part[1];
-                return ['Content-Type: ' + type, '', data].join('\n');
+            parts.push({
+                type: 'application/json',
+                data: JSON.stringify({
+                    'action': 'commit',
+                    'target': this.target,
+                    'author': this.author,
+                    'author-date': timestamp,
+                    'committer': this.author,
+                    'committer-date': timestamp,
+                    'message': this.message,
+                }, null, 2),
             });
-            parts = parts.join('\n--CONSONANT\n');
 
-            return parts;
+            // join parts together into the final multipart/mixed message
+            return $.map(parts, function (part) {
+                return ['Content-Type: ' + part.type, part.data].join('\n\n');
+            }).join('\n--CONSONANT\n');
         };
 
         return {
             begin: begin,
             commit: commit,
             create: create,
-            multipart_mixed: multipart_mixed,
+            data: data,
             update: update,
         };
     }();
