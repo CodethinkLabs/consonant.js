@@ -151,13 +151,15 @@
         var refs = function (callback) {
             var url = Helpers.urljoin(this.url, 'refs');
             var service = this;
-            $.getJSON(url, function (data) {
+            return $.getJSON(url, function (data) {
                 var refs = {};
                 for (var name in data) {
                     refs[name] = Ref.parseJSON(data[name]);
                     refs[name].head.service = service;
                 }
-                callback(refs);
+                if (callback) {
+                    callback(refs);
+                }
             });
         };
 
@@ -173,10 +175,12 @@
         var ref = function (name, callback) {
             var url = Helpers.urljoin(this.url, 'refs', name);
             var service = this;
-            $.getJSON(url, function (data) {
+            return $.getJSON(url, function (data) {
                 var ref = Ref.parseJSON(data);
                 ref.head.service = service;
-                callback(ref);
+                if (callback) {
+                    callback(ref);
+                }
             });
         };
 
@@ -191,10 +195,12 @@
         var commit = function (sha1, callback) {
             var url = Helpers.urljoin(this.url, 'commits', sha1);
             var service = this;
-            $.getJSON(url, function (data) {
+            return $.getJSON(url, function (data) {
                 var commit = Commit.parseJSON(data);
                 commit.service = service;
-                callback(commit);
+                if (callback) {
+                    callback(commit);
+                }
             });
         };
 
